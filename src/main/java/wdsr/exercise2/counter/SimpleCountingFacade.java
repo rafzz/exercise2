@@ -5,8 +5,10 @@ package wdsr.exercise2.counter;
  * 
  * Task: use 'synchronized' keyword in this file to make SimpleCountingFacadeTest pass.
  */
-public class SimpleCountingFacade implements CountingFacade {
+public class  SimpleCountingFacade implements CountingFacade {
 	private final BusinessService businessService;
+	
+	private final Object obj = new Object();
 	
 	private int invocationCounter;
 	
@@ -14,8 +16,13 @@ public class SimpleCountingFacade implements CountingFacade {
 		this.businessService = businessService;
 	}
 	
-	public void countAndInvoke() {
-		invocationCounter++;
+	public  void countAndInvoke() {
+		
+		synchronized(obj){
+			
+			invocationCounter++;
+		}
+		
 		businessService.executeAction();
 	}
 	
