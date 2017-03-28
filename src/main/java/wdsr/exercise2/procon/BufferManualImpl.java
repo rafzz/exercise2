@@ -1,6 +1,7 @@
 package wdsr.exercise2.procon;
 
-import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,30 +12,50 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class BufferManualImpl implements Buffer {
 	
-	private ArrayList<Order> orderList = new ArrayList<Order>();
+	private Queue<Order> orderList = new LinkedList<Order>();
 	
 	private Lock lock = new ReentrantLock();
-	final Condition notFull  = lock.newCondition(); 
-	final Condition notEmpty = lock.newCondition(); 
+	private final Condition notFull  = lock.newCondition(); 
+	private final Condition notEmpty = lock.newCondition(); 
 	
 	
 	
 	public void submitOrder(Order order) throws InterruptedException {
-		// TODO
 		lock.lock();
 	     try {
-	    	 
+	    	 ifFull();
 	    	 orderList.add(order);
+			 notEmpty.signal();
 	       
 	       
 	     } finally {
-	       lock.unlock();
+			 lock.unlock();
 	     }
 		
 	}
 	
 	public Order consumeNextOrder() throws InterruptedException {
-		// TODO
-		return null;
+		lock.lock();
+	     try {
+	    	 ifEmpty();
+	    	 Order order = orderList.remove();
+			 notFull.signal();
+			 return order;
+	       
+	       
+	     } finally {
+			 lock.unlock();
+	     }
 	}
+	
+	private void ifFull() throws InterruptedException {
+ 		while (orderList.size() == 1200)
+ 			notFull.await();
+  	}
+	
+	
+	private void ifEmpty() throws InterruptedException {
+ 		while (orderList.isEmpty())
+ 			notEmpty.await();
+  	}
 }
