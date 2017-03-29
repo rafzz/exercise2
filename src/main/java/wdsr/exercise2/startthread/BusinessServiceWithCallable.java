@@ -26,40 +26,31 @@ public class BusinessServiceWithCallable {
 	public long sumOfRandomInts() throws InterruptedException, ExecutionException {
 		long result = 0;
 
-		ArrayList<Callable> callColection = new ArrayList<Callable>();
-		ArrayList<Integer> intColection = new ArrayList<Integer>();
+		ArrayList<Future<Integer>> futureColection = new ArrayList<>();
+		
 
 		for (int i = 0; i < 100; i++) {
-			callColection.add(() -> {
+			
+			Future<Integer> future = executorService.submit(() -> {
 
 				return helper.nextRandom();
 
 			});
 			
+			futureColection.add(future);
+			
+			
+			
 		}
 
-		for (Callable c : callColection) {
+		for (Future<Integer> future : futureColection) {
 
-			Future<Integer> future = executorService.submit(c);
-			intColection.add(future.get());
-
-		}
-
-		for (Integer integer : intColection) {
-
-			result += integer;
+			result += future.get();
 
 		}
 
-		// TODO Task:
-		// 1. create 100 Callable objects that invoke helper.nextRandom in their
-		// call() method.
-		// 2. submit all Callable objects to executorService
-		// (executorService.submit or executorService.invokeAll)
-		// 3. sum up the results - each random number can be retrieved using
-		// future.get() method.
-		// 4. return the computed result.
 
 		return result;
+		
 	}
 }
